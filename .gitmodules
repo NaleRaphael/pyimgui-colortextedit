@@ -1,0 +1,7 @@
+[submodule "imgui-colortextedit-cpp"]
+	path = imgui-colortextedit-cpp
+	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git
+
+[submodule "imgui-cpp"]
+	path = imgui-cpp
+	url = https://github.com/ocornut/imgui.git
