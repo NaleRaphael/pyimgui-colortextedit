@@ -15,7 +15,7 @@ def setup_package():
 
     EXTENSIONS = [
         Extension(
-            'colortextedit.core', get_source_files('colortextedit'),
+            'colortextedit.texteditor', get_source_files('colortextedit'),
             include_dirs=['imgui-cpp', 'imgui-colortextedit-cpp', 'colortextedit'],
         ),
     ]
@@ -39,6 +39,9 @@ def setup_package():
         python_requires='>=3.6',
         license='MIT',
     )
+
+    setup(**metadata)
+
 
 if __name__ == '__main__':
     setup_package()
