@@ -13,8 +13,18 @@ from libc.stdint cimport uintptr_t
 
 cimport ctextedit
 
+# XXX: Declare types for pointer since the template argument used by `reinterpret_cast`
+# cannot be a statement of pointer (`TYPE*`), and it will be used to cast a Python integer
+# object into a C pointer. This might not be a good solution for accessing address of C
+# object, but since we cannot access the real address of `ImGuiContext` through the
+# returned value of `get_current_context()`, this is currently the only workable workaround.
+# (because the returned value will be always wrapped as a Python object, so that the
+# *cdefed* attribute `_ptr` won't be accessible from Python)
+# See also the following link for the reason why we have to do this:
+# - https://github.com/ocornut/imgui/blob/7b1ab5b/imgui.cpp#L878-L898
 ctypedef ctextedit.ImGuiContext* ImGuiContext_ptr
 ctypedef long* long_ptr
+
 
 cdef bytes _bytes(str text):
     return <bytes>(text if PY_MAJOR_VERSION < 3 else text.encode('utf-8'))
@@ -49,6 +59,7 @@ def get_current_context():
 
 
 def get_current_context_ptr():
+    """Get pointer of `ImGuiContext` instance."""
     cdef ctextedit.ImGuiContext* _ptr
     _ptr = ctextedit.GetCurrentContext()
     return <uintptr_t>_ptr
@@ -59,12 +70,15 @@ def set_current_context(_ImGuiContext ctx):
 
 
 def set_current_context_from_ptr(long ptr):
+    """Set `ImGuiContext` by given pointer (it's actually a Python integer object)."""
     cdef long* temp_ptr
     cdef ctextedit.ImGuiContext* context_ptr
     cdef _ImGuiContext context
 
+    # Cast integer into pointer
     temp_ptr = reinterpret_cast[long_ptr](<void *>ptr)
     context_ptr = reinterpret_cast[ImGuiContext_ptr](temp_ptr)
+
     context = _ImGuiContext.from_ptr(context_ptr)
     set_current_context(context)
 
